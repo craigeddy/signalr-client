@@ -2,6 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
 import { Message } from 'primeng/api';
+
+// matches the Notification object from the Data api
+interface INotification {
+  subscriber: string;
+  id: string;
+  title: string;
+  content: string;
+  isRead: boolean;
+  postedOn: Date;
+  level: string;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,6 +33,11 @@ export class AppComponent implements OnInit {
     this._hubConnection.on('SendSimpleMessage', (message: string) => {
       this.msgs = [];
       this.msgs.push({ severity: '', summary: message });
+    });
+
+    this._hubConnection.on('SendNotification', (message: INotification) => {
+      this.msgs = [];
+      this.msgs.push({ severity: message.level, summary: message.content });
     });
 
     this._hubConnection.onclose( () => this._hubConnection.start());
